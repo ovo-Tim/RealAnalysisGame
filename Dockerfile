@@ -10,17 +10,9 @@ WORKDIR /home/node
 # Copy the RealAnalysisGame files from the build context
 COPY --chown=node:node . RealAnalysisGame
 
-# Clone lean4game using the same branch as GameServer dependency in lake-manifest.json
-# This ensures version compatibility between the server and client
-RUN export LEAN_VERSION_FULL="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$')" && \
-    export LEAN_VERSION_BASE="$(echo $LEAN_VERSION_FULL | sed 's/-rc[0-9]*$//')" && \
-    git clone --depth 1 --branch bump-$LEAN_VERSION_BASE https://github.com/leanprover-community/lean4game.git
-
-# Clone vscode-lean4 to work around gitpkg.vercel.app 402 errors
-# This dependency is normally fetched via gitpkg during npm install
-RUN git clone --depth 1 https://github.com/leanprover/vscode-lean4.git /home/node/vscode-lean4 && \
-    cd /home/node/vscode-lean4 && \
-    git checkout 8d0cc34dcfa00da8b4a48394ba1fb3a600e3f985 || true
+# Clone lean4game from chore/bump-v4.26.0 which has PR #431 fix
+# PR #431 removes gitpkg.vercel.app dependency (merged Jan 8, 2026)
+RUN git clone --depth 1 --branch chore/bump-v4.26.0 https://github.com/leanprover-community/lean4game.git
 
 ENV ELAN_HOME=/usr/local/elan \
     PATH=/usr/local/elan/bin:$PATH
@@ -40,10 +32,9 @@ RUN export LEAN_VERSION="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep
     lake --version;
 
 # Build the Lean project and lean4game
-# Note: We don't run 'lake update -R' because lake-manifest.json already locks correct dependency versions
-RUN cd /home/node/RealAnalysisGame && lake exe cache get && lake build && \
+# We run 'lake update' because we upgraded Lean version and need to update dependencies
+RUN cd /home/node/RealAnalysisGame && lake update && lake exe cache get && lake build && \
     cd /home/node/lean4game && \
-    sed -i 's|"lean4": "https://gitpkg.now.sh/leanprover/vscode-lean4/vscode-lean4?[^"]*"|"lean4": "file:../vscode-lean4/vscode-lean4"|g' package.json && \
     npm install --legacy-peer-deps && \
     npm run build && \
     npm cache clean --force && rm -rf ~/.cache
