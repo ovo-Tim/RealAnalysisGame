@@ -37,14 +37,19 @@ RUN export LEAN_VERSION="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep
 
 # Build the Lean project and lean4game
 # Don't run 'lake update' to preserve locked dependency versions from lake-manifest.json
-RUN cd /home/node/RealAnalysisGame && lake exe cache get && lake build && \
-    cd /home/node/lean4web-temp && \
+RUN cd /home/node/RealAnalysisGame && lake exe cache get && lake build
+
+RUN cd /home/node/lean4web-temp && \
     sed -i 's|"lean4-infoview":\s*"https://gitpkg[^"]*leanprover/vscode-lean4/lean4-infoview[^"]*"|"lean4-infoview": "file:../vscode-lean4-temp/lean4-infoview"|g' package.json && \
     sed -i 's|"lean4-infoview-api":\s*"https://gitpkg[^"]*leanprover/vscode-lean4/lean4-infoview-api[^"]*"|"lean4-infoview-api": "file:../vscode-lean4-temp/lean4-infoview-api"|g' package.json && \
     sed -i 's|"vscode-lean4":\s*"https://gitpkg[^"]*leanprover/vscode-lean4/vscode-lean4[^"]*"|"vscode-lean4": "file:../vscode-lean4-temp/vscode-lean4"|g' package.json && \
     cd /home/node/lean4game && \
-    sed -i 's|"lean4web":\s*"git+ssh://git@github.com/hhu-adam/lean4web.git"|"lean4web": "file:../lean4web-temp"|g' package.json && \
-    npm install --legacy-peer-deps && \
+    sed -i 's|"lean4web":\s*"git+ssh://git@github.com/hhu-adam/lean4web.git"|"lean4web": "file:../lean4web-temp"|g' package.json
+
+RUN cd /home/node/lean4game && cat package.json
+RUN cd /home/node/lean4web-temp && cat package.json
+
+RUN npm install --legacy-peer-deps && \
     npm run build && \
     npm cache clean --force && rm -rf ~/.cache
 
@@ -52,4 +57,3 @@ WORKDIR /home/node
 
 EXPOSE 3000
 CMD ["sh", "-c", "cd lean4game && npm run start"]
-
