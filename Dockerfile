@@ -36,8 +36,8 @@ RUN export LEAN_VERSION="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep
     leanc --version && \
     lake --version;
 
-# pnpm just doesn't work
-RUN cd /home/node/RealAnalysisGame && lake update -R
+# Build the Lean project and lean4game
+# Note: We don't run 'lake update -R' because lake-manifest.json already locks correct dependency versions
 RUN cd /home/node/RealAnalysisGame && lake exe cache get && lake build && \
     cd /home/node/lean4game && npm i && \
     cd /home/node/lean4game && npm run build && \
