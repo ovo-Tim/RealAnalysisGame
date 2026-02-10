@@ -14,10 +14,11 @@ WORKDIR /home/node
 # Copy the RealAnalysisGame files from the build context
 COPY --chown=node:node . RealAnalysisGame
 
-# Clone lean4game using the base version (without -rc suffix) as branch names don't include RC versions
+# Clone lean4game using the same branch as GameServer dependency in lake-manifest.json
+# This ensures version compatibility between the server and client
 RUN export LEAN_VERSION_FULL="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$')" && \
     export LEAN_VERSION_BASE="$(echo $LEAN_VERSION_FULL | sed 's/-rc[0-9]*$//')" && \
-    git clone --depth 1 --branch $LEAN_VERSION_BASE https://github.com/leanprover-community/lean4game.git
+    git clone --depth 1 --branch bump-$LEAN_VERSION_BASE https://github.com/leanprover-community/lean4game.git
 
 ENV ELAN_HOME=/usr/local/elan \
     PATH=/usr/local/elan/bin:$PATH
@@ -39,7 +40,7 @@ RUN export LEAN_VERSION="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep
 # Build the Lean project and lean4game
 # Note: We don't run 'lake update -R' because lake-manifest.json already locks correct dependency versions
 RUN cd /home/node/RealAnalysisGame && lake exe cache get && lake build && \
-    cd /home/node/lean4game && npm i && \
+    cd /home/node/lean4game && npm install --legacy-peer-deps --verbose && \
     cd /home/node/lean4game && npm run build && \
     npm cache clean --force && rm -rf ~/.cache
 
