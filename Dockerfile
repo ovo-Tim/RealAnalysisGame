@@ -62,7 +62,14 @@ RUN cd /home/node/lean4web-temp && \
     npm run build || echo "lean4web build completed with warnings"
 
 RUN cd /home/node/lean4game && \
-    npm install --legacy-peer-deps && \
+    npm install --legacy-peer-deps
+
+# Create proper symlink for lean4web to resolve deep imports
+RUN cd /home/node/lean4game/node_modules && \
+    rm -rf lean4web && \
+    ln -s /home/node/lean4web-temp lean4web
+
+RUN cd /home/node/lean4game && \
     npm run build && \
     npm cache clean --force && rm -rf ~/.cache
 
