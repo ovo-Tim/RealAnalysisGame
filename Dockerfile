@@ -3,10 +3,6 @@ FROM node:20 AS builder
 
 SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
-# Install DNS utilities and configure DNS if needed
-RUN apt-get update && apt-get install -y dnsutils && \
-    rm -rf /var/lib/apt/lists/*
-
 USER node
 
 WORKDIR /home/node
