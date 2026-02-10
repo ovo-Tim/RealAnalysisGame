@@ -53,6 +53,9 @@ RUN cd /home/node/lean4game && \
 RUN cd /home/node/lean4game && cat package.json
 RUN cd /home/node/lean4web-temp && cat package.json
 
+# Remove package-lock.json files to force npm to use patched package.json
+RUN rm -f /home/node/lean4game/package-lock.json /home/node/lean4web-temp/package-lock.json
+
 RUN cd /home/node/lean4game && \
     npm install --legacy-peer-deps && \
     npm run build && \
