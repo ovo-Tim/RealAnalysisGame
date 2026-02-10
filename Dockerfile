@@ -14,7 +14,7 @@ WORKDIR /home/node
 # Copy the RealAnalysisGame files from the build context
 COPY --chown=node:node . RealAnalysisGame
 
-RUN export LEAN_VERSION="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$' | sed 's/-rc[0-9]*$//')" && git clone --depth 1 --branch $LEAN_VERSION https://github.com/leanprover-community/lean4game.git
+RUN export LEAN_VERSION="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$')" && git clone --depth 1 --branch $LEAN_VERSION https://github.com/leanprover-community/lean4game.git
 
 ENV ELAN_HOME=/usr/local/elan \
     PATH=/usr/local/elan/bin:$PATH
@@ -22,7 +22,7 @@ ENV ELAN_HOME=/usr/local/elan \
 USER root
 
 
-RUN export LEAN_VERSION="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$' | sed 's/-rc[0-9]*$//')" && \
+RUN export LEAN_VERSION="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$')" && \
     cat /etc/resolv.conf && \
     curl --retry 3 --retry-delay 2 https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --no-modify-path --default-toolchain $LEAN_VERSION && \
     chmod -R a+w $ELAN_HOME && \
