@@ -14,7 +14,10 @@ WORKDIR /home/node
 # Copy the RealAnalysisGame files from the build context
 COPY --chown=node:node . RealAnalysisGame
 
-RUN export LEAN_VERSION="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$')" && git clone --depth 1 --branch $LEAN_VERSION https://github.com/leanprover-community/lean4game.git
+# Clone lean4game using the base version (without -rc suffix) as branch names don't include RC versions
+RUN export LEAN_VERSION_FULL="$(cat /home/node/RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$')" && \
+    export LEAN_VERSION_BASE="$(echo $LEAN_VERSION_FULL | sed 's/-rc[0-9]*$//')" && \
+    git clone --depth 1 --branch $LEAN_VERSION_BASE https://github.com/leanprover-community/lean4game.git
 
 ENV ELAN_HOME=/usr/local/elan \
     PATH=/usr/local/elan/bin:$PATH
