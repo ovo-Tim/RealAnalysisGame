@@ -11,7 +11,8 @@ USER node
 
 WORKDIR /home/node
 
-RUN git clone --depth 1 https://github.com/AlexKontorovich/RealAnalysisGame RealAnalysisGame
+# Copy the RealAnalysisGame files from the build context
+COPY --chown=node:node . RealAnalysisGame
 
 RUN export LEAN_VERSION="$(cat RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$' | sed 's/-rc[0-9]*$//')" && git clone --depth 1 --branch $LEAN_VERSION https://github.com/leanprover-community/lean4game.git
 
