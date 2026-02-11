@@ -18,7 +18,7 @@ You can run this game using Docker without installing Lean locally.
 
 ```bash
 docker pull ovotim/real-analysis-game:latest
-docker run -it --rm ovotim/real-analysis-game:latest
+docker run -it --rm -p 3000:3000 ovotim/real-analysis-game:latest
 ```
 
 #### Building locally:
@@ -28,7 +28,9 @@ docker run -it --rm ovotim/real-analysis-game:latest
 docker build -t real-analysis-game .
 
 # Run the container
-docker run -it --rm real-analysis-game
+docker run -it --rm -p 3000:3000 real-analysis-game
 ```
+
+The game will be accessible at `http://localhost:3000` once the container is running.
 
 The Docker image is automatically built and published to [ovotim/real-analysis-game](https://hub.docker.com/r/ovotim/real-analysis-game) on every push to the main branch.
