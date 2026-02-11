@@ -11,9 +11,9 @@ USER node
 
 WORKDIR /home/node
 
-RUN git clone --depth 1 https://github.com/AlexKontorovich/RealAnalysisGame RealAnalysisGame
+COPY --chown=node:node . RealAnalysisGame
 
-RUN export LEAN_VERSION="$(cat RealAnalysisGame/lean-toolchain | grep -oE '[^:]+$' | sed 's/-rc[0-9]*$//')" && git clone --depth 1 --branch $LEAN_VERSION https://github.com/leanprover-community/lean4game.git
+RUN git clone --depth 1 --branch main https://github.com/leanprover-community/lean4game.git
 
 ENV ELAN_HOME=/usr/local/elan \
     PATH=/usr/local/elan/bin:$PATH
