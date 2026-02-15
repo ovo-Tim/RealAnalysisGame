@@ -25,7 +25,9 @@ RUN export LEAN_VERSION="$(cat RealAnalysisGame/lean-toolchain | grep -oE '[^:]+
     elan toolchain install $LEAN_VERSION && \
     elan default $LEAN_VERSION
 
+RUN ls -la RealAnalysisGame/ && cat RealAnalysisGame/lean-toolchain && echo "---" && ls -la RealAnalysisGame/Game/ | head -20
 RUN cd RealAnalysisGame && lake update -R
+RUN cd RealAnalysisGame && lake env printPaths Game 2>&1 || true
 RUN cd RealAnalysisGame && lake exe cache get && lake build --log-level error
 RUN cd /home/node/lean4game && npm i && npm run build
 
@@ -58,6 +60,9 @@ COPY --from=builder /home/node/lean4game/server /home/node/lean4game/server
 # Copy RealAnalysisGame build artifacts (game is accessed via /#/g/local/RealAnalysisGame)
 COPY --from=builder /home/node/RealAnalysisGame/.lake /home/node/RealAnalysisGame/.lake
 COPY --from=builder /home/node/RealAnalysisGame/lean-toolchain /home/node/RealAnalysisGame/lean-toolchain
+COPY --from=builder /home/node/RealAnalysisGame/lakefile.lean /home/node/RealAnalysisGame/lakefile.lean
+COPY --from=builder /home/node/RealAnalysisGame/Game.lean /home/node/RealAnalysisGame/Game.lean
+COPY --from=builder /home/node/RealAnalysisGame/Game /home/node/RealAnalysisGame/Game
 
 EXPOSE 8080
 CMD ["node", "lean4game/relay/dist/src/index.js"]
