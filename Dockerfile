@@ -25,9 +25,7 @@ RUN export LEAN_VERSION="$(cat RealAnalysisGame/lean-toolchain | grep -oE '[^:]+
     elan toolchain install $LEAN_VERSION && \
     elan default $LEAN_VERSION
 
-RUN ls -la RealAnalysisGame/ && cat RealAnalysisGame/lean-toolchain && echo "---" && ls -la RealAnalysisGame/Game/ | head -20
 RUN cd RealAnalysisGame && lake update -R
-RUN cd RealAnalysisGame && lake env printPaths Game 2>&1 || true
 RUN cd RealAnalysisGame && lake exe cache get && lake build --log-level error
 RUN cd /home/node/lean4game && npm i && npm run build
 
@@ -35,7 +33,7 @@ RUN cd /home/node/lean4game && npm i && npm run build
 FROM node:20-slim
 
 # Lean requires libgmp at runtime
-RUN apt-get update && apt-get install -y --no-install-recommends libgmp10 && \
+RUN apt-get update && apt-get install -y --no-install-recommends libgmp10 git && \
     rm -rf /var/lib/apt/lists/*
 
 ENV ELAN_HOME=/usr/local/elan \
@@ -61,6 +59,7 @@ COPY --from=builder /home/node/lean4game/server /home/node/lean4game/server
 COPY --from=builder /home/node/RealAnalysisGame/.lake /home/node/RealAnalysisGame/.lake
 COPY --from=builder /home/node/RealAnalysisGame/lean-toolchain /home/node/RealAnalysisGame/lean-toolchain
 COPY --from=builder /home/node/RealAnalysisGame/lakefile.lean /home/node/RealAnalysisGame/lakefile.lean
+COPY --from=builder /home/node/RealAnalysisGame/lake-manifest.json /home/node/RealAnalysisGame/lake-manifest.json
 COPY --from=builder /home/node/RealAnalysisGame/Game.lean /home/node/RealAnalysisGame/Game.lean
 COPY --from=builder /home/node/RealAnalysisGame/Game /home/node/RealAnalysisGame/Game
 
